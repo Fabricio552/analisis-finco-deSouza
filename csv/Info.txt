@@ -1,0 +1,175 @@
+PROYECTO FINAL C — RAMBLA CAPITAL
+Perfiles de riesgo del inversor uruguayo y carteras modelo
+Programación Analítica II — Universidad de Montevideo
+
+===============================================================================
+CONTEXTO
+===============================================================================
+
+Rambla Capital es una firma de asesoramiento patrimonial de Montevideo. Atiende
+a unos 640 clientes con patrimonios que van desde unos pocos miles de dólares
+hasta varios millones.
+
+Hasta ahora, la firma asignaba el perfil de riesgo de cada cliente preguntándole
+directamente: "¿usted se considera conservador, moderado o agresivo?". Con esa
+respuesta se le recomendaba una cartera.
+
+El nuevo gerente de asesoramiento no está cómodo con eso:
+
+    "Tenemos un problema y no sé de qué tamaño es. Le preguntamos a la gente qué
+    perfil tiene, le creemos, y le armamos la cartera con esa respuesta. Pero la
+    gente se describe como quiere que la vean, no como se comporta. Quiero saber
+    cuántos clientes tienen una cartera que no se parece a lo que dijeron ser, y
+    quiénes son. Ahí adentro está nuestro próximo juicio."
+
+Les entregan la encuesta anual de perfil, el registro de operaciones de la
+firma, el catálogo de instrumentos disponibles y las tasas de referencia del
+mercado uruguayo, todo al 30 de junio de 2026.
+
+===============================================================================
+ARCHIVO 1 — encuesta_inversores.csv
+===============================================================================
+
+Una fila por respuesta a la encuesta anual de perfil.
+
+id_cliente                     Identificador del cliente.
+fecha_respuesta                Fecha en que completó el formulario.
+edad                           Edad declarada.
+sexo                           Femenino o Masculino.
+departamento                   Departamento de residencia.
+cantidad_dependientes          Personas a cargo.
+nivel_educativo                Máximo nivel alcanzado.
+ocupacion                      Situación laboral.
+ingreso_mensual_liquido        Ingreso mensual líquido declarado, en pesos
+                               uruguayos.
+patrimonio_invertible_usd      Patrimonio disponible para invertir declarado, en
+                               dólares. No incluye la vivienda propia.
+tiene_deudas                   Si tiene deudas vigentes.
+tiene_fondo_emergencia         Si tiene un fondo de emergencia constituido.
+meses_gastos_cubiertos         Cuántos meses de gastos cubre ese fondo.
+anios_experiencia_invirtiendo  Años que hace que invierte.
+puntaje_test_conocimiento      Resultado de un test objetivo de diez preguntas
+                               de educación financiera. De 0 a 10.
+conocimiento_autopercibido     Cuánto cree el cliente que sabe, de 1 a 5.
+perfil_autodeclarado           Cómo se define el cliente: Conservador, Moderado
+                               o Agresivo. ES UNA AUTODESCRIPCIÓN, no una
+                               medición.
+tolerancia_perdida_maxima      Máxima pérdida que dice que aceptaría.
+horizonte_inversion            Cuánto tiempo dice que puede dejar el dinero
+                               invertido.
+frecuencia_monitoreo           Cada cuánto mira sus inversiones.
+retorno_esperado_anual         Retorno anual que espera obtener.
+reaccion_caida_20              Qué dice que haría si su cartera cayera 20%.
+objetivo_principal             Para qué invierte.
+fuente_informacion             De dónde saca la información para decidir.
+prioridad_plazo_fijo           Orden de preferencia, de 1 a 7, entre siete
+prioridad_letras_bcu           instrumentos. 1 es el preferido y 7 el menos
+prioridad_fondos_locales       preferido. Ojo: es una preferencia DECLARADA,
+prioridad_obligaciones         no lo que la persona efectivamente tiene.
+prioridad_etf_exterior
+prioridad_inmuebles
+prioridad_criptomonedas
+
+===============================================================================
+ARCHIVO 2 — movimientos_cartera.csv
+===============================================================================
+
+Una fila por operación registrada por la firma. Es lo que el cliente
+efectivamente HIZO, a diferencia de la encuesta, que es lo que DIJO.
+
+id_movimiento     Identificador de la operación.
+id_cliente        Clave para unir con la encuesta.
+id_instrumento    Clave para unir con el catálogo de instrumentos.
+fecha_operacion   Fecha de la operación.
+tipo_operacion    Compra o Suscripción.
+moneda            Moneda en la que se registró la operación.
+monto             Importe de la operación, EN LA MONEDA DE LA COLUMNA ANTERIOR.
+
+===============================================================================
+ARCHIVO 3 — catalogo_instrumentos.csv
+===============================================================================
+
+Los catorce instrumentos que la firma puede ofrecer en Uruguay.
+
+id_instrumento           Identificador del instrumento.
+nombre_instrumento       Nombre comercial.
+categoria                Familia de activo.
+moneda                   Moneda de denominación: UYU, USD o UI.
+inversion_minima         Monto mínimo de entrada, en la moneda del instrumento.
+retorno_anual_historico  Retorno anual promedio de los últimos diez años,
+                         expresado en tanto por uno y en la moneda del
+                         instrumento.
+volatilidad_anual        Desvío estándar anual del retorno, en tanto por uno.
+nivel_riesgo             Escala interna de la firma, de 1 (más conservador) a
+                         5 (más agresivo).
+liquidez                 Facilidad para salir: Muy baja, Baja, Media o Alta.
+
+===============================================================================
+ARCHIVO 4 — tasas_referencia.csv
+===============================================================================
+
+concepto   Indicador macroeconómico o de mercado.
+valor      Valor del indicador.
+unidad     Unidad en la que está expresado.
+fecha      Fecha de referencia.
+
+Incluye la inflación uruguaya, la meta del BCU, la tasa de política monetaria,
+el tipo de cambio, el valor de la unidad indexada, el rendimiento de las Letras
+de Regulación Monetaria, la inflación de Estados Unidos y el rendimiento del
+bono del Tesoro estadounidense a diez años.
+
+===============================================================================
+OBJETIVO
+===============================================================================
+
+Reemplazar la autodeclaración por una segmentación construida con datos, y
+traducirla en carteras modelo. Concretamente:
+
+1. ¿CUÁNTO SE PARECE LO QUE DICEN A LO QUE HACEN?
+   Construir, para cada cliente, una medida del riesgo efectivo de su cartera a
+   partir de lo que realmente tiene, y compararla con el perfil que declaró.
+   Cuantificar la brecha.
+
+2. ¿QUIÉNES SON LOS CLIENTES EN RIESGO DE DESAJUSTE?
+   Caracterizar a los clientes cuya cartera no se parece a su perfil declarado.
+   Distinguir los dos casos, que no tienen la misma gravedad: el que se dice
+   agresivo y tiene una cartera conservadora está perdiendo oportunidades; el
+   que se dice conservador y tiene una cartera agresiva es un reclamo esperando
+   que pase algo.
+
+3. ¿LAS EXPECTATIVAS SON POSIBLES?
+   Cruzar el retorno que los clientes esperan con lo que rinden los instrumentos
+   que tienen, en términos reales. Un retorno nominal en pesos no se compara con
+   uno en dólares sin pasar por la inflación y el tipo de cambio.
+
+4. ¿QUÉ VARIABLES EXPLICAN DE VERDAD EL COMPORTAMIENTO?
+   Hay relaciones que aparecen a primera vista y se desarman cuando se controla
+   por una tercera variable. Encontrar al menos una y mostrar cómo se desarma.
+
+5. ¿QUÉ CARTERAS MODELO PROPONEMOS?
+   Definir entre tres y cinco perfiles con nombre propio, decir cuántos clientes
+   entran en cada uno, y armar para cada perfil una cartera modelo con los
+   instrumentos del catálogo, respetando los mínimos de inversión y la necesidad
+   de liquidez. Justificar cada asignación.
+
+El entregable final es una presentación ejecutiva a la mesa de asesoramiento de
+la firma.
+
+===============================================================================
+ADVERTENCIA
+===============================================================================
+
+La encuesta se completó en un formulario en línea sin validaciones y el registro
+de operaciones nunca se concilió contra la encuesta. Hay respuestas duplicadas,
+campos en blanco, valores imposibles, centinelas de faltante disfrazados de
+dato, categorías escritas de varias maneras y montos en tres monedas distintas
+sin convertir. Nada de eso está documentado acá a propósito.
+
+Y hay algo más: los faltantes de esta base no son aleatorios. Averigüen quién es
+el que no contesta antes de decidir qué hacer con las filas incompletas.
+
+===============================================================================
+Datos sintéticos generados para uso docente, inspirados en
+kaggle.com/datasets/nitindatta/finance-data y adaptados al mercado uruguayo.
+Rambla Capital es una firma ficticia. Los rendimientos del catálogo son
+ilustrativos y no constituyen asesoramiento de inversión.
