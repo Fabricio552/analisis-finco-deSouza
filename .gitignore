@@ -1,1 +1,9 @@
 
+# Datos crudos (no se suben al repo)
+datos/*.csv
+
+
+# Entorno virtual
+.venv/
+venv/
+
