@@ -1,0 +1,1 @@
+# Script con funciones para realizar cálculos repetitivos
